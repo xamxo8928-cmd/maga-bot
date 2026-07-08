@@ -36,6 +36,16 @@ def webhook():
     return "ok", 200
 @app.route("/prices")
 def prices():
-    return get_market_data()
+    data = get_market_data()
+
+    result = {}
+
+    for pair, df in data.items():
+        result[pair] = {
+            "close": round(float(df["Close"].iloc[-1]), 5),
+            "candles": len(df)
+        }
+
+    return result
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
