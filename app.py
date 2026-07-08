@@ -36,6 +36,20 @@ def webhook():
     send_telegram(message)
 
     return "ok", 200
+    @app.route("/signal")
+def signal():
+
+    data = get_market_data()
+
+    result = {}
+
+    for pair, df in data.items():
+
+        signal = check_signal(df)
+
+        result[pair] = signal if signal else "WAIT"
+
+    return result
 @app.route("/prices")
 def prices():
     data = get_market_data()
