@@ -16,7 +16,7 @@ def get_prices():
             data = yf.download(ticker, period="1d", interval="1m", progress=False)
 
             if not data.empty:
-                prices[name] = float(data["Close"].iloc[-1])
+               prices[name] = round(data["Close"].values[-1].item(), 5)
 
         except Exception as e:
             print(f"Ошибка {name}: {e}")
