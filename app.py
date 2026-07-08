@@ -36,7 +36,8 @@ def webhook():
     send_telegram(message)
 
     return "ok", 200
-    @app.route("/signal")
+
+@app.route("/signal")
 def signal():
 
     data = get_market_data()
