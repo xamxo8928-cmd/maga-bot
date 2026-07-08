@@ -8,6 +8,9 @@ from threading import Thread
 from scheduler import run_scheduler
 
 app = Flask(__name__)
+thread = Thread(target=run_scheduler)
+thread.daemon = True
+thread.start()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
