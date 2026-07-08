@@ -14,6 +14,7 @@ def get_market_data():
     result = {}
 
     for pair_name, ticker in PAIRS.items():
+        for pair_name, ticker in PAIRS.items():
         try:
             df = yf.download(
                 ticker,
@@ -24,7 +25,8 @@ def get_market_data():
             )
 
             if df.empty:
-                continue
+    print(f"Нет данных для {pair_name}")
+    continue
 
             df = df.dropna()
 
@@ -33,6 +35,7 @@ def get_market_data():
                 df.columns = [c[0] for c in df.columns]
 
             result[pair_name] = df.tail(250)
+print(f"{pair_name} загружено: {len(df.tail(250))} свечей")
 
         except Exception as e:
             print(f"{pair_name}: {e}")
