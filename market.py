@@ -14,7 +14,8 @@ def get_market_data():
     result = {}
 
     for pair_name, ticker in PAIRS.items():
-        for pair_name, ticker in PAIRS.items():
+        print(f"Загружаю {pair_name} ({ticker})")
+
         try:
             df = yf.download(
                 ticker,
@@ -25,19 +26,19 @@ def get_market_data():
             )
 
             if df.empty:
-    print(f"Нет данных для {pair_name}")
-    continue
+                print(f"Нет данных для {pair_name}")
+                continue
 
             df = df.dropna()
 
-            # Если yfinance вернул MultiIndex
             if hasattr(df.columns, "levels"):
                 df.columns = [c[0] for c in df.columns]
 
             result[pair_name] = df.tail(250)
-print(f"{pair_name} загружено: {len(df.tail(250))} свечей")
+
+            print(f"{pair_name} загружено: {len(df.tail(250))} свечей")
 
         except Exception as e:
-            print(f"{pair_name}: {e}")
+            print(f"Ошибка {pair_name}: {e}")
 
     return result
