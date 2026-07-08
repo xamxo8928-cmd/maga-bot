@@ -2,6 +2,8 @@ from flask import Flask, request
 import requests
 import os
 from market import get_market_data
+from strategy import check_signal
+from telegram_bot import send_signal
 
 app = Flask(__name__)
 
