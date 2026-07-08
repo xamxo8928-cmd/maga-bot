@@ -4,6 +4,8 @@ import os
 from market import get_market_data
 from strategy import check_signal
 from telegram_bot import send_signal
+from threading import Thread
+from scheduler import run_scheduler
 
 app = Flask(__name__)
 
