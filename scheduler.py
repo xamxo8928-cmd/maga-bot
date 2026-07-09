@@ -53,6 +53,7 @@ def check_results(data):
         )
 
 def run_scheduler():
+    print("🚀 Scheduler запущен")
 
     while True:
 
