@@ -22,13 +22,13 @@ def run_scheduler():
 
                 last_signals[pair] = signal
 
-               send_signal(
-    f"🚨 НОВЫЙ СИГНАЛ\n\n"
-    f"💱 {pair}\n"
-    f"📈 Направление: {signal}\n"
-    f"⏱ Таймфрейм: M1\n"
-    f"⌛ Экспирация: 1 минута"
-)
+                send_signal(
+                    f"🚨 НОВЫЙ СИГНАЛ\n\n"
+                    f"💱 {pair}\n"
+                    f"📈 Направление: {signal}\n"
+                    f"⏱ Таймфрейм: M1\n"
+                    f"⌛ Экспирация: 1 минута"
+                )
 
                 print(pair, signal)
 
