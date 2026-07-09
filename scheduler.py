@@ -2,6 +2,7 @@ import time
 from market import get_market_data
 from strategy import check_signal
 from telegram_bot import send_signal
+from database import save_signal
 
 last_signals = {}
 last_signal_time = {}
@@ -36,6 +37,8 @@ def run_scheduler():
                     f"⏱ Таймфрейм: M1\n"
                     f"⌛ Экспирация: 1 минута"
                 )
+                price = round(float(df["Close"].iloc[-1]), 5)
+save_signal(pair, signal, price)
 
                 print(pair, signal)
 
