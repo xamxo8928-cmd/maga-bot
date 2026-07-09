@@ -1,10 +1,13 @@
 import os
+import time
 import pandas as pd
 from twelvedata import TDClient
+
 
 API_KEY = os.getenv("TWELVE_API_KEY")
 
 td = TDClient(apikey=API_KEY)
+
 
 PAIRS = {
     "EUR/USD": "EUR/USD",
@@ -17,7 +20,12 @@ PAIRS = {
 }
 
 
+last_data = {}
+
+
 def get_market_data():
+
+    global last_data
 
     result = {}
 
@@ -31,12 +39,14 @@ def get_market_data():
                 td.time_series(
                     symbol=symbol,
                     interval="1min",
-                    outputsize=250,
+                    outputsize=250
                 )
                 .as_pandas()
             )
 
+
             df = df.sort_index()
+
 
             df = df.rename(
                 columns={
@@ -44,18 +54,35 @@ def get_market_data():
                     "high": "High",
                     "low": "Low",
                     "close": "Close",
-                    "volume": "Volume",
+                    "volume": "Volume"
                 }
             )
 
+
             df = df.astype(float)
+
 
             result[pair_name] = df
 
-            print(f"{pair_name}: {len(df)} свечей")
+            last_data[pair_name] = df
+
+
+            print(
+                f"{pair_name}: {len(df)} свечей"
+            )
+
 
         except Exception as e:
 
-            print(f"{pair_name}: {e}")
+            print(
+                f"{pair_name}: ошибка API, беру старые данные"
+            )
+
+            if pair_name in last_data:
+                result[pair_name] = last_data[pair_name]
+
+
+        time.sleep(8)
+
 
     return result
