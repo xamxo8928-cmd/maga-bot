@@ -3,11 +3,13 @@ from market import get_market_data
 from strategy import check_signal
 from telegram_bot import send_signal
 from database import save_signal, get_unchecked, update_result
+from cache import market_cache
 
 last_signals = {}
 last_signal_time = {}
 
 CHECK_DELAY = 60
+
 
 def check_results(data):
     signals = get_unchecked()
@@ -43,6 +45,7 @@ def check_results(data):
 
         print(f"RESULT -> {pair} {direction} {result}")
 
+
 def run_scheduler():
 
     print("🚀 Scheduler запущен")
@@ -53,10 +56,14 @@ def run_scheduler():
 
         data = get_market_data()
 
-        # Проверяем старые сигналы
+        # сохраняем рынок в кэш
+        market_cache.clear()
+        market_cache.update(data)
+
+        # проверяем результаты
         check_results(data)
 
-        # Ищем новые сигналы
+        # ищем новые сигналы
         for pair, df in data.items():
 
             signal = check_signal(df)
