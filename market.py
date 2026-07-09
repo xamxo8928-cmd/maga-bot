@@ -1,14 +1,19 @@
-import time
-import yfinance as yf
+import os
+import pandas as pd
+from twelvedata import TDClient
+
+API_KEY = os.getenv("TWELVE_API_KEY")
+
+td = TDClient(apikey=API_KEY)
 
 PAIRS = {
-    "EUR/USD": "EURUSD=X",
-    "GBP/USD": "GBPUSD=X",
-    "USD/JPY": "JPY=X",
-    "AUD/USD": "AUDUSD=X",
-    "USD/CAD": "CAD=X",
-    "USD/CHF": "CHF=X",
-    "NZD/USD": "NZDUSD=X"
+    "EUR/USD": "EUR/USD",
+    "GBP/USD": "GBP/USD",
+    "USD/JPY": "USD/JPY",
+    "AUD/USD": "AUD/USD",
+    "USD/CAD": "USD/CAD",
+    "USD/CHF": "USD/CHF",
+    "NZD/USD": "NZD/USD",
 }
 
 
@@ -16,46 +21,41 @@ def get_market_data():
 
     result = {}
 
-    for pair_name, ticker in PAIRS.items():
+    for pair_name, symbol in PAIRS.items():
 
-        print(f"Загружаю {pair_name} ({ticker})")
+        print(f"Загружаю {pair_name}")
 
-        success = False
+        try:
 
-        for attempt in range(3):
-
-            try:
-
-                df = yf.download(
-                    ticker,
-                    period="2d",
-                    interval="1m",
-                    progress=False,
-                    auto_adjust=False
+            df = (
+                td.time_series(
+                    symbol=symbol,
+                    interval="1min",
+                    outputsize=250,
                 )
+                .as_pandas()
+            )
 
-                if df.empty:
-                    raise Exception("Пустой DataFrame")
+            df = df.sort_index()
 
-                df = df.dropna()
+            df = df.rename(
+                columns={
+                    "open": "Open",
+                    "high": "High",
+                    "low": "Low",
+                    "close": "Close",
+                    "volume": "Volume",
+                }
+            )
 
-                if hasattr(df.columns, "levels"):
-                    df.columns = [c[0] for c in df.columns]
+            df = df.astype(float)
 
-                result[pair_name] = df.tail(250)
+            result[pair_name] = df
 
-                print(f"{pair_name} загружено: {len(df.tail(250))} свечей")
+            print(f"{pair_name}: {len(df)} свечей")
 
-                success = True
-                break
+        except Exception as e:
 
-            except Exception as e:
-
-                print(f"{pair_name}: попытка {attempt + 1}/3 -> {e}")
-
-                time.sleep(2)
-
-        if not success:
-            print(f"Не удалось загрузить {pair_name}")
+            print(f"{pair_name}: {e}")
 
     return result
