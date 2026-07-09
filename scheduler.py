@@ -68,6 +68,7 @@ def run_scheduler():
         for pair, df in data.items():
 
             signal = check_signal(df)
+print(pair, "→", signal)
 
             if signal is None:
                 continue
