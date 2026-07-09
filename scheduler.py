@@ -8,7 +8,6 @@ last_signals = {}
 def run_scheduler():
     while True:
         print("Проверяю рынок...")
-        send_signal("✅ Проверка Telegram")
 
         data = get_market_data()
 
