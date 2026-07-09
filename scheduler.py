@@ -4,6 +4,7 @@ from strategy import check_signal
 from telegram_bot import send_signal
 
 last_signals = {}
+last_signal_time = {}
 
 def run_scheduler():
     while True:
