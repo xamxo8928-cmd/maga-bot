@@ -1,3 +1,4 @@
+import time
 import yfinance as yf
 
 PAIRS = {
@@ -10,35 +11,51 @@ PAIRS = {
     "NZD/USD": "NZDUSD=X"
 }
 
+
 def get_market_data():
+
     result = {}
 
     for pair_name, ticker in PAIRS.items():
+
         print(f"Загружаю {pair_name} ({ticker})")
 
-        try:
-            df = yf.download(
-                ticker,
-                period="2d",
-                interval="1m",
-                progress=False,
-                auto_adjust=False
-            )
+        success = False
 
-            if df.empty:
-                print(f"Нет данных для {pair_name}")
-                continue
+        for attempt in range(3):
 
-            df = df.dropna()
+            try:
 
-            if hasattr(df.columns, "levels"):
-                df.columns = [c[0] for c in df.columns]
+                df = yf.download(
+                    ticker,
+                    period="2d",
+                    interval="1m",
+                    progress=False,
+                    auto_adjust=False
+                )
 
-            result[pair_name] = df.tail(250)
+                if df.empty:
+                    raise Exception("Пустой DataFrame")
 
-            print(f"{pair_name} загружено: {len(df.tail(250))} свечей")
+                df = df.dropna()
 
-        except Exception as e:
-            print(f"Ошибка {pair_name}: {e}")
+                if hasattr(df.columns, "levels"):
+                    df.columns = [c[0] for c in df.columns]
+
+                result[pair_name] = df.tail(250)
+
+                print(f"{pair_name} загружено: {len(df.tail(250))} свечей")
+
+                success = True
+                break
+
+            except Exception as e:
+
+                print(f"{pair_name}: попытка {attempt + 1}/3 -> {e}")
+
+                time.sleep(2)
+
+        if not success:
+            print(f"Не удалось загрузить {pair_name}")
 
     return result
