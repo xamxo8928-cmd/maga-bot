@@ -21,9 +21,15 @@ def run_scheduler():
 
             if last_signals.get(pair) != signal:
 
-                last_signals[pair] = signal
+    now = time.time()
 
-                send_signal(
+    if pair in last_signal_time and now - last_signal_time[pair] < 300:
+        continue
+
+    last_signals[pair] = signal
+    last_signal_time[pair] = now
+
+    send_signal(
                     f"🚨 НОВЫЙ СИГНАЛ\n\n"
                     f"💱 {pair}\n"
                     f"📈 Направление: {signal}\n"
