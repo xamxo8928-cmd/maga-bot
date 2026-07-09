@@ -10,7 +10,6 @@ last_signal_time = {}
 CHECK_DELAY = 60
 
 def check_results(data):
-
     signals = get_unchecked()
 
     for signal_id, pair, direction, entry_price in signals:
@@ -25,18 +24,14 @@ def check_results(data):
         result = "DRAW"
 
         if direction == "CALL":
-
             if current_price > entry_price:
                 result = "WIN"
-
             elif current_price < entry_price:
                 result = "LOSS"
 
-        if direction == "PUT":
-
+        elif direction == "PUT":
             if current_price < entry_price:
                 result = "WIN"
-
             elif current_price > entry_price:
                 result = "LOSS"
 
@@ -46,13 +41,10 @@ def check_results(data):
             result
         )
 
-        print(
-            pair,
-            direction,
-            result
-        )
+        print(f"RESULT -> {pair} {direction} {result}")
 
 def run_scheduler():
+
     print("🚀 Scheduler запущен")
 
     while True:
@@ -68,7 +60,8 @@ def run_scheduler():
         for pair, df in data.items():
 
             signal = check_signal(df)
-print(pair, "→", signal)
+
+            print(f"{pair} -> {signal}")
 
             if signal is None:
                 continue
@@ -83,10 +76,7 @@ print(pair, "→", signal)
                 last_signals[pair] = signal
                 last_signal_time[pair] = now
 
-                price = round(
-                    float(df["Close"].iloc[-1]),
-                    5
-                )
+                price = round(float(df["Close"].iloc[-1]), 5)
 
                 save_signal(
                     pair,
@@ -103,9 +93,6 @@ print(pair, "→", signal)
                     f"⌛ Экспирация: 1 минута"
                 )
 
-                print(
-                    pair,
-                    signal
-                )
+                print(f"SEND -> {pair} {signal}")
 
         time.sleep(CHECK_DELAY)
