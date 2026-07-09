@@ -25,17 +25,19 @@ def check_signal(df):
 
     last = len(df) - 1
 
+    # CALL только при сильном восходящем тренде
     if (
-        ema20.iloc[last] > ema50.iloc[last]
-        and ema50.iloc[last] > ema200.iloc[last]
-        and rsi14.iloc[last] > 55
+        ema20.iloc[last] > ema50.iloc[last] > ema200.iloc[last]
+        and close.iloc[last] > ema20.iloc[last]
+        and rsi14.iloc[last] > 60
     ):
         return "CALL"
 
+    # PUT только при сильном нисходящем тренде
     if (
-        ema20.iloc[last] < ema50.iloc[last]
-        and ema50.iloc[last] < ema200.iloc[last]
-        and rsi14.iloc[last] < 45
+        ema20.iloc[last] < ema50.iloc[last] < ema200.iloc[last]
+        and close.iloc[last] < ema20.iloc[last]
+        and rsi14.iloc[last] < 40
     ):
         return "PUT"
 
