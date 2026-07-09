@@ -37,8 +37,9 @@ def run_scheduler():
                     f"⏱ Таймфрейм: M1\n"
                     f"⌛ Экспирация: 1 минута"
                 )
+
                 price = round(float(df["Close"].iloc[-1]), 5)
-save_signal(pair, signal, price)
+                save_signal(pair, signal, price)
 
                 print(pair, signal)
 
