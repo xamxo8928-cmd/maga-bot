@@ -1,9 +1,11 @@
 import time
+
 from market import get_market_data
 from strategy import check_signal
 from telegram_bot import send_signal
 from database import save_signal, get_unchecked, update_result
 from cache import market_cache
+
 
 last_signals = {}
 last_signal_time = {}
@@ -12,6 +14,7 @@ CHECK_DELAY = 60
 
 
 def check_results(data):
+
     signals = get_unchecked()
 
     for signal_id, pair, direction, entry_price in signals:
@@ -21,21 +24,30 @@ def check_results(data):
 
         df = data[pair]
 
-        current_price = round(float(df["Close"].iloc[-1]), 5)
+        current_price = round(
+            float(df["Close"].iloc[-1]),
+            5
+        )
 
         result = "DRAW"
 
         if direction == "CALL":
+
             if current_price > entry_price:
                 result = "WIN"
+
             elif current_price < entry_price:
                 result = "LOSS"
 
+
         elif direction == "PUT":
+
             if current_price < entry_price:
                 result = "WIN"
+
             elif current_price > entry_price:
                 result = "LOSS"
+
 
         update_result(
             signal_id,
@@ -43,63 +55,91 @@ def check_results(data):
             result
         )
 
-        print(f"RESULT -> {pair} {direction} {result}")
+        print(
+            f"RESULT -> {pair} {direction} {result}"
+        )
 
 
 def run_scheduler():
 
     print("🚀 Scheduler запущен")
 
+
     while True:
 
         print("Проверяю рынок...")
 
+
         data = get_market_data()
 
-        # сохраняем рынок в кэш
-        market_cache.clear()
-        market_cache.update(data)
 
-        # проверяем результаты
+        if data:
+
+            market_cache.clear()
+            market_cache.update(data)
+
+
         check_results(data)
 
-        # ищем новые сигналы
+
         for pair, df in data.items():
 
             signal = check_signal(df)
 
-            print(f"{pair} -> {signal}")
+
+            print(
+                f"{pair} -> {signal}"
+            )
+
 
             if signal is None:
                 continue
 
-            if last_signals.get(pair) != signal:
 
-                now = time.time()
+            if last_signals.get(pair) == signal:
+                continue
 
-                if pair in last_signal_time and now - last_signal_time[pair] < 300:
-                    continue
 
-                last_signals[pair] = signal
-                last_signal_time[pair] = now
+            now = time.time()
 
-                price = round(float(df["Close"].iloc[-1]), 5)
 
-                save_signal(
-                    pair,
-                    signal,
-                    price
-                )
+            if (
+                pair in last_signal_time
+                and now - last_signal_time[pair] < 300
+            ):
+                continue
 
-                send_signal(
-                    f"🚨 НОВЫЙ СИГНАЛ\n\n"
-                    f"💱 {pair}\n"
-                    f"📈 Направление: {signal}\n"
-                    f"💰 Цена: {price}\n"
-                    f"⏱ Таймфрейм: M1\n"
-                    f"⌛ Экспирация: 1 минута"
-                )
 
-                print(f"SEND -> {pair} {signal}")
+            last_signals[pair] = signal
+            last_signal_time[pair] = now
+
+
+            price = round(
+                float(df["Close"].iloc[-1]),
+                5
+            )
+
+
+            save_signal(
+                pair,
+                signal,
+                price
+            )
+
+
+            send_signal(
+                f"🚨 НОВЫЙ СИГНАЛ\n\n"
+                f"💱 {pair}\n"
+                f"📈 {signal}\n"
+                f"💰 Цена: {price}\n"
+                f"⏱ M1\n"
+                f"⌛ Экспирация: 1 минута"
+            )
+
+
+            print(
+                f"SEND -> {pair} {signal}"
+            )
+
 
         time.sleep(CHECK_DELAY)
