@@ -10,32 +10,38 @@ from telegram_bot import send_signal
 from scheduler import run_scheduler
 from database import init_db
 
+
 app = Flask(__name__)
 
 init_db()
 
+
 thread = Thread(target=run_scheduler)
 thread.daemon = True
 thread.start()
+
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
 
 def send_telegram(message):
+
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
-    payload = {
-        "chat_id": CHAT_ID,
-        "text": message,
-        "parse_mode": "HTML"
-    }
-
-    requests.post(url, data=payload)
+    requests.post(
+        url,
+        data={
+            "chat_id": CHAT_ID,
+            "text": message,
+            "parse_mode": "HTML"
+        }
+    )
 
 
 @app.route("/")
 def home():
+
     return "Bot is running!"
 
 
@@ -47,7 +53,10 @@ def webhook():
     if not data:
         return "no data", 400
 
-    message = data.get("message", "No signal")
+    message = data.get(
+        "message",
+        "No signal"
+    )
 
     send_telegram(message)
 
@@ -63,7 +72,11 @@ def signal():
 
         sig = check_signal(df)
 
-        result[pair] = sig if sig else "WAIT"
+        result[pair] = (
+            sig
+            if sig
+            else "WAIT"
+        )
 
     return result
 
@@ -76,7 +89,10 @@ def prices():
     for pair, df in market_cache.items():
 
         result[pair] = {
-            "close": round(float(df["Close"].iloc[-1]), 5),
+            "close": round(
+                float(df["Close"].iloc[-1]),
+                5
+            ),
             "candles": len(df)
         }
 
@@ -84,4 +100,8 @@ def prices():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+
+    app.run(
+        host="0.0.0.0",
+        port=10000
+    )
