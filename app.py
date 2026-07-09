@@ -6,8 +6,10 @@ from strategy import check_signal
 from telegram_bot import send_signal
 from threading import Thread
 from scheduler import run_scheduler
+from database import init_db
 
 app = Flask(__name__)
+init_db()
 thread = Thread(target=run_scheduler)
 thread.daemon = True
 thread.start()
