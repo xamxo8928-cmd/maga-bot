@@ -2,6 +2,7 @@ import sqlite3
 
 DB_NAME = "signals.db"
 
+
 def init_db():
 
     conn = sqlite3.connect(DB_NAME)
@@ -33,6 +34,7 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 def save_signal(pair, signal, entry_price):
 
     conn = sqlite3.connect(DB_NAME)
@@ -54,6 +56,7 @@ def save_signal(pair, signal, entry_price):
     conn.commit()
     conn.close()
 
+
 def get_unchecked():
 
     conn = sqlite3.connect(DB_NAME)
@@ -61,9 +64,16 @@ def get_unchecked():
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT id,pair,signal,entry_price
+        SELECT
+            id,
+            pair,
+            signal,
+            entry_price
+
         FROM signals
-        WHERE checked=0
+
+        WHERE checked = 0
+          AND created_at <= datetime('now','-60 seconds')
     """)
 
     rows = cursor.fetchall()
@@ -71,6 +81,7 @@ def get_unchecked():
     conn.close()
 
     return rows
+
 
 def update_result(signal_id, exit_price, result):
 
@@ -82,11 +93,11 @@ def update_result(signal_id, exit_price, result):
         UPDATE signals
 
         SET
-            exit_price=?,
-            result=?,
-            checked=1
+            exit_price = ?,
+            result = ?,
+            checked = 1
 
-        WHERE id=?
+        WHERE id = ?
     """,
     (
         exit_price,
@@ -95,5 +106,4 @@ def update_result(signal_id, exit_price, result):
     ))
 
     conn.commit()
-
     conn.close()
