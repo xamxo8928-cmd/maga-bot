@@ -1,13 +1,9 @@
 import os
 import time
+import requests
 import pandas as pd
-from twelvedata import TDClient
-
 
 API_KEY = os.getenv("TWELVE_API_KEY")
-
-td = TDClient(apikey=API_KEY)
-
 
 PAIRS = {
     "EUR/USD": "EUR/USD",
@@ -18,7 +14,6 @@ PAIRS = {
     "USD/CHF": "USD/CHF",
     "NZD/USD": "NZD/USD",
 }
-
 
 last_data = {}
 
@@ -35,54 +30,55 @@ def get_market_data():
 
         try:
 
-            df = (
-                td.time_series(
-                    symbol=symbol,
-                    interval="1min",
-                    outputsize=200
-                )
-                .as_pandas()
+            url = "https://api.twelvedata.com/time_series"
+
+            response = requests.get(
+                url,
+                params={
+                    "symbol": symbol,
+                    "interval": "1min",
+                    "outputsize": 200,
+                    "apikey": API_KEY,
+                    "format": "JSON"
+                },
+                timeout=10
             )
 
+            data = response.json()
 
+            if "values" not in data:
+                raise Exception(data)
+
+            df = pd.DataFrame(data["values"])
+
+            df = df.rename(columns={
+                "datetime": "Datetime",
+                "open": "Open",
+                "high": "High",
+                "low": "Low",
+                "close": "Close",
+                "volume": "Volume"
+            })
+
+            df["Datetime"] = pd.to_datetime(df["Datetime"])
+            df = df.set_index("Datetime")
             df = df.sort_index()
 
-
-            df = df.rename(
-                columns={
-                    "open": "Open",
-                    "high": "High",
-                    "low": "Low",
-                    "close": "Close",
-                    "volume": "Volume"
-                }
-            )
-
-
-            df = df.astype(float)
-
+            for col in ["Open", "High", "Low", "Close", "Volume"]:
+                df[col] = df[col].astype(float)
 
             result[pair_name] = df
-
             last_data[pair_name] = df
 
-
-            print(
-                f"{pair_name}: {len(df)} свечей"
-            )
-
+            print(f"{pair_name}: {len(df)} свечей")
 
         except Exception as e:
 
-            print(
-                f"{pair_name}: ошибка API, беру старые данные"
-            )
+            print(f"{pair_name}: ошибка API ({e}), беру старые данные")
 
             if pair_name in last_data:
                 result[pair_name] = last_data[pair_name]
 
-
-        time.sleep(8)
-
+        time.sleep(1)
 
     return result
