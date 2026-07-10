@@ -39,7 +39,7 @@ def get_market_data():
                 td.time_series(
                     symbol=symbol,
                     interval="1min",
-                    outputsize=250
+                    outputsize=200
                 )
                 .as_pandas()
             )
