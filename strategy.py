@@ -49,7 +49,7 @@ def check_signal(df):
     last = len(df) - 1
 
     # фильтр слабого рынка
-    if atr14.iloc[last] < 0.0005:
+    if atr14.iloc[last] < 0.0002:
         return None
 
     # CALL
