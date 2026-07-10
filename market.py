@@ -30,10 +30,8 @@ def get_market_data():
 
         try:
 
-            url = "https://api.twelvedata.com/time_series"
-
             response = requests.get(
-                url,
+                "https://api.twelvedata.com/time_series",
                 params={
                     "symbol": symbol,
                     "interval": "1min",
@@ -56,15 +54,14 @@ def get_market_data():
                 "open": "Open",
                 "high": "High",
                 "low": "Low",
-                "close": "Close",
-                "volume": "Volume"
+                "close": "Close"
             })
 
             df["Datetime"] = pd.to_datetime(df["Datetime"])
             df = df.set_index("Datetime")
             df = df.sort_index()
 
-            for col in ["Open", "High", "Low", "Close", "Volume"]:
+            for col in ["Open", "High", "Low", "Close"]:
                 df[col] = df[col].astype(float)
 
             result[pair_name] = df
