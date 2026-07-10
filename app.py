@@ -5,9 +5,9 @@ import os
 from threading import Thread
 
 from strategy import check_signal
-from market import get_market_data
 from scheduler import run_scheduler
 from database import init_db, get_stats
+from cache import load_cache
 
 
 app = Flask(__name__)
@@ -65,7 +65,7 @@ def webhook():
 @app.route("/signal")
 def signal():
 
-    data = get_market_data()
+    data = load_cache()
 
     result = {}
 
@@ -81,7 +81,7 @@ def signal():
 @app.route("/prices")
 def prices():
 
-    data = get_market_data()
+    data = load_cache()
 
     result = {}
 
