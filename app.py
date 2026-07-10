@@ -6,9 +6,8 @@ from threading import Thread
 
 from cache import market_cache
 from strategy import check_signal
-from telegram_bot import send_signal
 from scheduler import run_scheduler
-from database import init_db
+from database import init_db, get_stats
 
 
 app = Flask(__name__)
@@ -97,6 +96,20 @@ def prices():
         }
 
     return result
+
+
+@app.route("/stats")
+def stats():
+
+    data = get_stats()
+
+    return {
+        "total_signals": data["total"],
+        "wins": data["wins"],
+        "losses": data["losses"],
+        "winrate": f'{data["winrate"]}%',
+        "pairs": data["pairs"]
+    }
 
 
 if __name__ == "__main__":
