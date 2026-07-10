@@ -6,4 +6,3 @@ python-dotenv==1.0.1
 yfinance
 pandas
 schedule
-twelvedata
