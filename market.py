@@ -9,7 +9,6 @@ PAIRS = {
     "AUD/USD": "AUDUSD=X",
 }
 
-
 last_data = {}
 
 
@@ -32,12 +31,17 @@ def get_market_data():
                 period="2d",
                 interval="1m",
                 progress=False,
-                auto_adjust=False,
-                threads=False
+                auto_adjust=False
             )
 
             if df.empty:
                 raise Exception("Нет данных")
+
+            if isinstance(df.columns, type(df.columns)) and hasattr(df.columns, "droplevel"):
+                try:
+                    df.columns = df.columns.droplevel(1)
+                except Exception:
+                    pass
 
             df = df.rename(columns={
                 "Open": "Open",
@@ -47,7 +51,7 @@ def get_market_data():
                 "Volume": "Volume"
             })
 
-            df = df.tail(200)
+            df = df[["Open", "High", "Low", "Close"]].astype(float)
 
             result[pair_name] = df
             last_data[pair_name] = df
