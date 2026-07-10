@@ -4,7 +4,7 @@ from market import get_market_data
 from strategy import check_signal
 from telegram_bot import send_signal
 from database import save_signal, get_unchecked, update_result
-from cache import market_cache
+from cache import save_cache
 
 
 last_signals = {}
@@ -75,8 +75,7 @@ def run_scheduler():
 
         if data:
 
-            market_cache.clear()
-            market_cache.update(data)
+            save_cache(data)
 
 
         check_results(data)
