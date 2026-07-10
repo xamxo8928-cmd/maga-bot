@@ -4,8 +4,8 @@ import os
 
 from threading import Thread
 
-from cache import market_cache
 from strategy import check_signal
+from market import get_market_data
 from scheduler import run_scheduler
 from database import init_db, get_stats
 
@@ -65,17 +65,15 @@ def webhook():
 @app.route("/signal")
 def signal():
 
+    data = get_market_data()
+
     result = {}
 
-    for pair, df in market_cache.items():
+    for pair, df in data.items():
 
         sig = check_signal(df)
 
-        result[pair] = (
-            sig
-            if sig
-            else "WAIT"
-        )
+        result[pair] = sig if sig else "WAIT"
 
     return result
 
@@ -83,9 +81,11 @@ def signal():
 @app.route("/prices")
 def prices():
 
+    data = get_market_data()
+
     result = {}
 
-    for pair, df in market_cache.items():
+    for pair, df in data.items():
 
         result[pair] = {
             "close": round(
