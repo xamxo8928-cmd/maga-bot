@@ -28,28 +28,20 @@ def get_market_data():
 
             df = yf.download(
                 symbol,
-                period="2d",
+                period="1d",
                 interval="1m",
                 progress=False,
-                auto_adjust=False
+                auto_adjust=False,
+                threads=False
             )
 
             if df.empty:
                 raise Exception("Нет данных")
 
-            if isinstance(df.columns, type(df.columns)) and hasattr(df.columns, "droplevel"):
-                try:
-                    df.columns = df.columns.droplevel(1)
-                except Exception:
-                    pass
-
-            df = df.rename(columns={
-                "Open": "Open",
-                "High": "High",
-                "Low": "Low",
-                "Close": "Close",
-                "Volume": "Volume"
-            })
+            try:
+                df.columns = df.columns.droplevel(1)
+            except Exception:
+                pass
 
             df = df[["Open", "High", "Low", "Close"]].astype(float)
 
@@ -65,6 +57,6 @@ def get_market_data():
             if pair_name in last_data:
                 result[pair_name] = last_data[pair_name]
 
-        time.sleep(1)
+        time.sleep(3)
 
     return result
