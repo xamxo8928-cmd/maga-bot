@@ -3,6 +3,7 @@ python-telegram-bot==21.4
 requests==2.32.3
 gunicorn==22.0.0
 python-dotenv==1.0.1
-yfinance
 pandas
 schedule
+yfinance
+xfinance
